@@ -6,14 +6,13 @@ dist: trusty
 jdk: oraclejdk8
 
 env:
-  - COVERAGE=0.5
-  - TARGET=ui
-  - TARGET=service/card
-  - TARGET=service/user
-  - TARGET=repository/order
-  - TARGET=repository/cart
-  - TARGET=repository/product
-  - TARGET=repository/user
+  - TARGET=ui COVERAGE=0.25
+  - TARGET=service/card COVERAGE=0.25
+  - TARGET=service/user COVERAGE=0.25
+  - TARGET=repository/order COVERAGE=0.25
+  - TARGET=repository/cart COVERAGE=0.25
+  - TARGET=repository/product COVERAGE=0.25
+  - TARGET=repository/user COVERAGE=0.25
 
 jobs:
   include:
