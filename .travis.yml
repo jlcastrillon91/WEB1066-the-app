@@ -3,7 +3,9 @@ install: true
 
 os: linux
 dist: trusty
-jdk: oraclejdk8
+jdk:
+  - oraclejdk8
+  - oraclejdk9
 
 env:
   - TARGET=ui COVERAGE=0.25
