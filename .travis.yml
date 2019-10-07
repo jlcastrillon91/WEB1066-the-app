@@ -6,5 +6,5 @@ dist: trusty
 jdk: oraclejdk8
 
 script:
-  - ./gradlew clean install
+  - ./gradlew clean jar
   - echo 'testing coming soon'
