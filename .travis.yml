@@ -5,6 +5,9 @@ os: linux
 dist: trusty
 jdk: oraclejdk8
 
-script:
-  - ./gradlew clean jar
-  - echo 'testing coming soon'
+jobs:
+  include:
+    - stage: build
+      script: ./gradlew clean jar
+    - stage: test
+      script: ./gradlew test
