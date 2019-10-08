@@ -20,11 +20,20 @@ jobs:
   include:
   - stage: build
     script: "./gradlew clean jar"
+  - stage: test
+    script: COVERAGE=$COVERAGE ./gradlew -p ./monolithic/$TARGET check
   - stage: deploy
     install: skip
     before_deploy:
-    - COVERAGE=$COVERAGE ./gradlew -p ./monolithic/$TARGET check
+      - DOCKER_LOGIN=jlcastrillon91 bash -c "echo \"${DOCKER_PASSWORD}\" | docker login --username \"${DOCKER_LOGIN}\"
+        --password-stdin"
+      - ./gradlew  -p ./monolithic/ui packageToContainer
+      - docker tag zutherb/monolithic-shop:latest $DOCKER_LOGIN/monolithic-shop:latest
+      - docker push $DOCKER_LOGIN/monolithic-shop:latest
+      - chmod +x ./script/deploy.sh
     deploy:
       provider: script
-      script: DOCKER_LOGIN=jlcastrillon91 bash -c "echo \"${DOCKER_PASSWORD}\" | docker login --username \"${DOCKER_LOGIN}\"
-        --password-stdin"
+      script: ./script/deploy.sh
+      on:
+        branch: release
+        condition: $TARGET = ui
