@@ -1,10 +1,30 @@
-language: python
-install: "pip install -r requirements.txt"
-
-script:
-  # Run ANSIBLE checks
-  # - ANSIBLE0008: Disabled for use of sudo warnings - to address
-  # - ANSIBLE0011: Disabled for all tasks which should be named
-  # - ANSIBLE0012: Disabled (should not change if nothings needs doing) - to address
-  # - ANSIBLE0013: Disabled - few uses of shell commands - to address
-  - find vagrant/provision -name "*.yml" -exec ansible-lint -x ANSIBLE008,ANSIBLE0011,ANSIBLE0012,ANSIBLE0013  {} +
+language: java
+install: true
+os: linux
+dist: trusty
+jdk:
+- oraclejdk8
+- oraclejdk9
+env:
+  matrix:
+  - TARGET=ui COVERAGE=0.25
+  - TARGET=service/card COVERAGE=0.25
+  - TARGET=service/user COVERAGE=0.25
+  - TARGET=repository/order COVERAGE=0.25
+  - TARGET=repository/cart COVERAGE=0.25
+  - TARGET=repository/product COVERAGE=0.25
+  - TARGET=repository/user COVERAGE=0.25
+  global:
+    secure: Jo9aPcMsqrYzQ6BaSK2ex35p7mYN1hGXwGutTfTD2aqTZ6elGh7jvFo6w8G6d92yng4WYdh/6swekFhjpqfOGSMV0/+68v6lOTrjOkjye55hTR8A0QHCxcowm1vua9IjgOPkAJxOcCBQKGCz+Er2WQrtchEPyqr1s7OYXu04bG6H+R2osazrdx/7LpgEvgxK9MaUJlaBZ4QdcIwbLNOphv00vZ4CaxnBZ4D6kxnH44A/TkLE+LB177+ie/hWcsiFe3iFYwQQ9LiDxFrsKHySNViTaPFjHV+2CgQYQOSvx9+PsNzvWnBis2AX4ePZDKWLgh7d8Y7v9Yw4h/5SiludU5pbbV9Zy6g867HiT6rLWSJNjza8PBXsz0j4SxhHbfT9cVYd2ui2rP5/7YQ/IUdEVLW4Ec83FetJDRpZIwvsCvwjQ1l7gMoaQvjafS13ZpURQ8UUpOkYrjz7lmKWjIBrFfKk5ZYbOSDRm7V0z1ewqcyUFIQIGKQKyUDjkxFXja0ESjw1siUmnAp89dVkizDiLD9SMeBa13N5Pt5zfRXz7Tq24okorXghOC9oNRmWC9O2O4YhhKsbGWinpdttxBKTSegv2kH5vG26+Psu6byPdMn5K0nboAkR8erVZt3LGSWax27BBMt9ROUmU7jzezsU9aM3QP+8PuQd/cLdg0p5jnM=
+jobs:
+  include:
+  - stage: build
+    script: "./gradlew clean jar"
+  - stage: deploy
+    install: skip
+    before_deploy:
+    - COVERAGE=$COVERAGE ./gradlew -p ./monolithic/$TARGET check
+    deploy:
+      provider: script
+      script: DOCKER_LOGIN=jlcastrillon91 bash -c "echo \"${DOCKER_PASSWORD}\" | docker login --username \"${DOCKER_LOGIN}\"
+        --password-stdin"
